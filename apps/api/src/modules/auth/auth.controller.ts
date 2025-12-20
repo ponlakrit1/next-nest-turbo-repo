@@ -10,8 +10,8 @@ import {
 } from '@nestjs/common';
 import type { Request } from 'express';
 import { AuthService } from './auth.service';
-import { JwtAccessGuard } from './guards/jwt-access.guard';
-import { JwtRefreshGuard } from './guards/jwt-refresh.guard';
+import { JwtAccessGuard } from '../../common/auth/guards/jwt-access.guard';
+import { JwtRefreshGuard } from '../../common/auth/guards/jwt-refresh.guard';
 import { RegisterDto, LoginDto } from './dto/auth.dto';
 
 @Controller('auth')
@@ -35,13 +35,6 @@ export class AuthController {
   async refreshTokens(@Req() req: Request) {
     const user = req.user as any;
     return this.authService.refreshTokens(user.sub);
-  }
-
-  @UseGuards(JwtAccessGuard)
-  @Post('logout')
-  @HttpCode(HttpStatus.OK)
-  async logout() {
-    return this.authService.logout();
   }
 
   @UseGuards(JwtAccessGuard)

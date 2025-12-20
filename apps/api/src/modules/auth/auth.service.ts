@@ -6,9 +6,9 @@ import {
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
-import { PrismaService } from '../prisma/prisma.service';
+import { PrismaService } from '../../common/prisma/prisma.service';
 import * as bcrypt from 'bcrypt';
-import { Tokens, JwtPayload } from './types/tokens.type';
+import { Tokens } from '../../common/auth/types/tokens.type';
 import { RegisterDto, LoginDto } from './dto/auth.dto';
 
 @Injectable()
@@ -18,8 +18,6 @@ export class AuthService {
     private jwtService: JwtService,
     private configService: ConfigService,
   ) {}
-
-  // ============ Register ============
 
   async register(dto: RegisterDto): Promise<Tokens> {
     const existingUser = await this.prisma.user.findUnique({
@@ -43,8 +41,6 @@ export class AuthService {
     return this.generateTokens(user.id, user.username);
   }
 
-  // ============ Login ============
-
   async login(dto: LoginDto): Promise<Tokens> {
     const user = await this.prisma.user.findUnique({
       where: { username: dto.username },
@@ -63,10 +59,7 @@ export class AuthService {
     return this.generateTokens(user.id, user.username);
   }
 
-  // ============ Refresh Token ============
-
   async refreshTokens(userId: string): Promise<Tokens> {
-    // ตรวจสอบว่า user ยังมีอยู่ใน database
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
     });
@@ -77,16 +70,6 @@ export class AuthService {
 
     return this.generateTokens(user.id, user.username);
   }
-
-  // ============ Logout ============
-
-  async logout() {
-    // Stateless: ไม่ต้องทำอะไร server-side
-    // Client ต้องลบ tokens เอง
-    return { message: 'Logged out successfully' };
-  }
-
-  // ============ Get Profile ============
 
   async getProfile(userId: string) {
     const user = await this.prisma.user.findUnique({
@@ -105,8 +88,6 @@ export class AuthService {
 
     return user;
   }
-
-  // ============ Helper Methods ============
 
   private async generateTokens(userId: string, username: string): Promise<Tokens> {
     const payload = { sub: userId, username };
