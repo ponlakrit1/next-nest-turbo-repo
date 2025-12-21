@@ -1,16 +1,13 @@
 import type { Metadata } from "next";
-import localFont from "next/font/local";
+import { IBM_Plex_Sans_Thai } from "next/font/google";
 import "./globals.css";
 import { getServerSession } from "next-auth";
 import SessionProvider from "@/components/shared/SessionProvider";
 
-const geistSans = localFont({
-  src: "./fonts/GeistVF.woff",
-  variable: "--font-geist-sans",
-});
-const geistMono = localFont({
-  src: "./fonts/GeistMonoVF.woff",
-  variable: "--font-geist-mono",
+const ibmPlexSansThai = IBM_Plex_Sans_Thai({
+  subsets: ['thai'],
+  weight: ['100', '200', '300', '400', '500', '600', '700'],
+  display: 'swap',
 });
 
 export const metadata: Metadata = {
@@ -26,7 +23,7 @@ export default async function RootLayout({
   const session = await getServerSession();
   return (
     <html lang="en">
-      <body className={`${geistSans.variable} ${geistMono.variable}`}>
+      <body className={`${ibmPlexSansThai.className} antialiased bg-white!`}>
         <SessionProvider session={session}>{children}</SessionProvider>
       </body>
     </html>
