@@ -1,102 +1,109 @@
-import Image, { type ImageProps } from "next/image";
-import { Button } from "@repo/ui/button";
-import styles from "./page.module.css";
+"use client"
 
-type Props = Omit<ImageProps, "src"> & {
-  srcLight: string;
-  srcDark: string;
+import { Button, Card, Form, FormProps, Input, message } from "antd";
+import { User, Lock } from "lucide-react";
+import { signIn, useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+
+type AuthFieldType = {
+  username: string;
+  password: string;
 };
 
-const ThemeImage = (props: Props) => {
-  const { srcLight, srcDark, ...rest } = props;
+export default function HomePage() {
+  const [loading, setLoading] = useState(false);
+
+  const router = useRouter();
+  const { status } = useSession();
+
+  const [messageApi, contextHolder] = message.useMessage();
+
+  useEffect(() => {
+    if (status === 'authenticated') {
+      router.push('/profile');
+    }
+  }, [router, status]);
+  
+  const onFinish: FormProps<AuthFieldType>['onFinish'] = async (form) => {
+    try {
+      setLoading(true);
+
+      const result = await signIn('credentials', {
+        redirect: false,
+        username: form.username,
+        password: form.password,
+      });
+
+      if (result?.error) {
+        setLoading(false);
+
+        messageApi.open({
+            type: 'error',
+            content: 'ไม่พบผู้ใช้งานในระบบ',
+        });
+
+        return false;
+      }
+
+      setLoading(false);
+    } catch {
+      setLoading(false);
+
+      messageApi.open({
+        type: 'error',
+        content: 'เกิดข้อผิดพลาดกรุณาติดต่อผู้ดูแลระบบ',
+      });
+    }
+  }
 
   return (
     <>
-      <Image {...rest} src={srcLight} className="imgLight" />
-      <Image {...rest} src={srcDark} className="imgDark" />
+      { contextHolder }
+
+      <div className="min-h-screen gradient-bg relative overflow-hidden flex items-center justify-center">
+          {/* Floating orbs for decoration */}
+          <div className="floating-orb"></div>
+          <div className="floating-orb"></div>
+          <div className="floating-orb"></div>
+          
+          {/* Main content */}
+          <div className="relative z-10 w-full max-w-md px-6">
+              <div className="animate-fade-in">
+                  <Card className="w-full max-w-md p-8 space-y-6 bg-white/90 backdrop-blur-xl border border-white/20 shadow-2xl shadow-primary/10 animate-scale-in">
+                      <div className="text-center space-y-2">
+                          <div className="w-16 h-16 mx-auto bg-primary rounded-full flex items-center justify-center mb-4 shadow-lg">
+                              <Lock className="w-8 h-8 text-white" />
+                          </div>
+                          <p className="text-2xl mb-8">เข้าสู่ระบบ</p>
+                      </div>
+
+                      <Form 
+                          layout='vertical'
+                          className="mt-4 w-full max-w-full"
+                          onFinish={onFinish}
+                      >
+                          <Form.Item name="username" label="ชื่อผู้ใช้งาน" rules={[{ required: true, message: 'กรุณากรอกชื่อผู้ใช้งาน' }]}>
+                              <Input size="large" prefix={<User />} />
+                          </Form.Item>
+                          <Form.Item name="password" label="รหัสผ่าน" rules={[{ required: true, message: 'กรุณากรอกรหัสผ่าน' }]}>
+                              <Input.Password size="large" prefix={<Lock />} />
+                          </Form.Item>
+                          <Form.Item>
+                              <Button className="!bg-secondary !text-white font-bold !border-none mt-4" shape="round" size="large" htmlType="submit" loading={loading}>
+                                  เข้าสู่ระบบ
+                              </Button>
+                          </Form.Item>
+                      </Form>
+                  </Card>
+              </div>
+          </div>
+          
+          {/* Decorative elements */}
+          <div className="absolute top-10 left-10 w-20 h-20 bg-white/10 rounded-full blur-xl"></div>
+          <div className="absolute bottom-10 right-10 w-32 h-32 bg-white/5 rounded-full blur-2xl"></div>
+          <div className="absolute top-1/2 left-1/4 w-16 h-16 bg-primary-200/20 rounded-full blur-lg"></div>
+      </div>
     </>
-  );
-};
-
-export default function Home() {
-  return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <ThemeImage
-          className={styles.logo}
-          srcLight="turborepo-dark.svg"
-          srcDark="turborepo-light.svg"
-          alt="Turborepo logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol>
-          <li>
-            Get started by editing <code>apps/web/app/page.tsx</code>
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
-
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new/clone?demo-description=Learn+to+implement+a+monorepo+with+a+two+Next.js+sites+that+has+installed+three+local+packages.&demo-image=%2F%2Fimages.ctfassets.net%2Fe5382hct74si%2F4K8ZISWAzJ8X1504ca0zmC%2F0b21a1c6246add355e55816278ef54bc%2FBasic.png&demo-title=Monorepo+with+Turborepo&demo-url=https%3A%2F%2Fexamples-basic-web.vercel.sh%2F&from=templates&project-name=Monorepo+with+Turborepo&repository-name=monorepo-turborepo&repository-url=https%3A%2F%2Fgithub.com%2Fvercel%2Fturborepo%2Ftree%2Fmain%2Fexamples%2Fbasic&root-directory=apps%2Fdocs&skippable-integrations=1&teamSlug=vercel&utm_source=create-turbo"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className={styles.logo}
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            href="https://turborepo.com/docs?utm_source"
-            target="_blank"
-            rel="noopener noreferrer"
-            className={styles.secondary}
-          >
-            Read our docs
-          </a>
-        </div>
-        <Button appName="web" className={styles.secondary}>
-          Open alert
-        </Button>
-      </main>
-      <footer className={styles.footer}>
-        <a
-          href="https://vercel.com/templates?search=turborepo&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          href="https://turborepo.com?utm_source=create-turbo"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to turborepo.com →
-        </a>
-      </footer>
-    </div>
   );
 }

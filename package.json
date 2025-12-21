@@ -1,5 +1,5 @@
 {
-  "name": "my-mind-v2-web-admin",
+  "name": "next-nest-turbo-repo",
   "private": true,
   "scripts": {
     "build": "turbo run build",
