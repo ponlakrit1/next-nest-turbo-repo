@@ -1,27 +1,28 @@
 import NextAuth, { AuthOptions } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import { JWT } from 'next-auth/jwt';
+import axios from 'axios';
 
 async function refreshAccessToken(token: JWT): Promise<JWT> {
   try {
-    const response = await fetch('http://localhost:3001/api/auth/refresh', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token.refreshToken}`,
-      },
-    });
+    const { status, data } = await axios.post('http://localhost:3001/api/auth/refresh', 
+      {},
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token.refreshToken}`,
+        },
+      }
+    );
 
-    const refreshedTokens = await response.json();
-
-    if (!response.ok) {
-      throw refreshedTokens;
+    if (status !== 200) {
+      throw data;
     }
 
     return {
       ...token,
-      accessToken: refreshedTokens.access_token,
-      refreshToken: refreshedTokens.refresh_token ?? token.refreshToken,
+      accessToken: data.access_token,
+      refreshToken: data.refresh_token ?? token.refreshToken,
       accessTokenExpires: Date.now() + 30 * 60 * 1000, // 30 minutes
     };
   } catch (error) {
@@ -49,36 +50,30 @@ export const authOptions: AuthOptions = {
 
         try {
           // Call your NestJS API
-          const response = await fetch('http://localhost:3001/api/auth/login', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
+          const { status, data } = await axios.post('http://localhost:3001/api/auth/login', 
+            {
               username: credentials.username,
               password: credentials.password,
-            }),
-          });
+            }
+          );
 
-          const data = await response.json();
-
-          if (!response.ok) {
+          if (status !== 200) {
             throw new Error(data.message || 'Login failed');
           }
 
           // Get user profile
-          const profileResponse = await fetch('http://localhost:3001/api/auth/profile', {
-            headers: {
-              Authorization: `Bearer ${data.access_token}`,
-            },
-          });
-
-          const user = await profileResponse.json();
+          const { data: profile } = await axios.get('http://localhost:3001/api/auth/profile', 
+            {
+              headers: {
+                Authorization: `Bearer ${data.access_token}`,
+              },
+            }
+          );
 
           return {
-            id: user.id,
-            email: user.email,
-            name: user.name,
+            id: profile.id,
+            email: profile.email,
+            name: profile.name,
             accessToken: data.access_token,
             refreshToken: data.refresh_token,
             accessTokenExpires: Date.now() + 30 * 60 * 1000, // 30 minutes
@@ -89,7 +84,6 @@ export const authOptions: AuthOptions = {
       },
     }),
   ],
-
   callbacks: {
     async jwt({ token, user, account }) {
       // Initial sign in
@@ -122,17 +116,13 @@ export const authOptions: AuthOptions = {
       return session;
     },
   },
-
   pages: {
-    signIn: '/auth/signin',
-    error: '/auth/error',
+    signIn: '/',
   },
-
   session: {
     strategy: 'jwt',
     maxAge: 30 * 24 * 60 * 60, // 30 days
   },
-
   secret: process.env.NEXTAUTH_SECRET,
 };
 

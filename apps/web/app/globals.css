@@ -35,3 +35,23 @@ body {
 }
 
 /* Custom ant design component styles */
+
+.btn-primary {
+  @apply bg-primary! text-white! border-0!;
+}
+
+.btn-secondary {
+  @apply bg-secondary! text-white! border-0!;
+}
+
+.btn-success {
+  @apply bg-green-500! text-white! border-0!;
+}
+
+.btn-danger {
+  @apply bg-red-500! text-white! border-0!;
+}
+
+.btn-warning {
+  @apply bg-yellow-500! text-white! border-0!;
+}
