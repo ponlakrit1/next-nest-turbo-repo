@@ -17,8 +17,7 @@ npx create-turbo@latest --example https://github.com/ponlakrit1/next-nest-turbo-
 - [Turborepo](https://turborepo.com/)
 - [Prisma](https://www.prisma.io/)
 - [Next-auth](https://next-auth.js.org/)
-- [TanStack](https://tanstack.com/)
-- [Docker](https://www.docker.com/)
+- [PM2](https://pm2.keymetrics.io/)
 
 ## Commands
 
@@ -39,4 +38,13 @@ pnpm run build
 ```sh
 # Will run the development server for all the app & packages with the supported `dev` script.
 pnpm run dev
+```
+
+### Deployment
+
+```sh
+# Start with pm2
+pnpm turbo run build
+
+pm2 start ecosystem.config.js
 ```

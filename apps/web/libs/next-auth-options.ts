@@ -5,7 +5,7 @@ import axios from 'axios';
 
 async function refreshAccessToken(token: JWT): Promise<JWT> {
   try {
-    const { status, data } = await axios.post('http://localhost:3001/api/auth/refresh', 
+    const { status, data } = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/refresh`, 
       {},
       {
         headers: {
@@ -50,7 +50,7 @@ export const authOptions: AuthOptions = {
 
         try {
           // Call your NestJS API
-          const { status, data } = await axios.post('http://localhost:3001/api/auth/login', 
+          const { status, data } = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/login`, 
             {
               username: credentials.username,
               password: credentials.password,
@@ -62,7 +62,7 @@ export const authOptions: AuthOptions = {
           }
 
           // Get user profile
-          const { data: profile } = await axios.get('http://localhost:3001/api/auth/profile', 
+          const { data: profile } = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/profile`, 
             {
               headers: {
                 Authorization: `Bearer ${data.access_token}`,
