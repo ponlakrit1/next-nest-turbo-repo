@@ -16,13 +16,6 @@
   --color-secondary: var(--secondary);
 }
 
-/* @media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-} */
-
 body {
   background: var(--background);
   color: var(--foreground);
@@ -54,4 +47,12 @@ body {
 
 .btn-warning {
   @apply bg-yellow-500! text-white! border-0!;
+}
+
+/* Custom ant design component styles */
+
+.ant-menu-item-selected {
+  background-color: #FF7525 !important;
+  color: #ffffff !important;
+  font-weight: 700 !important;
 }
